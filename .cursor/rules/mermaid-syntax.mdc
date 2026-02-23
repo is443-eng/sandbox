@@ -1,0 +1,15 @@
+---
+description: Use official Mermaid diagram syntax; reference the syntax reference for flowcharts, sequence diagrams, and diagram breakers
+globs: "**/*.md"
+alwaysApply: false
+---
+
+# Mermaid diagrams
+
+When writing or editing Mermaid diagrams (in Markdown or elsewhere), follow the official syntax reference:
+
+**https://mermaid.js.org/intro/syntax-reference.html**
+
+- Start each diagram with a **diagram type** declaration (e.g. `flowchart LR`, `sequenceDiagram`), then the definitions.
+- **Diagram breakers:** Avoid unquoted `end`; wrap it in quotation marks if needed. In `%%` comments, avoid `{}`. Nested node labels can break flowcharts — wrap in quotes if needed.
+- Use the [Mermaid Live Editor](https://mermaid.live) to validate or iterate on diagrams.

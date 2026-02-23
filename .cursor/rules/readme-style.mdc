@@ -1,0 +1,58 @@
+---
+description: README style and structure preferences for project documentation
+globs: "**/README.md"
+alwaysApply: true
+---
+
+# README style
+
+When writing or editing READMEs in this project, follow these conventions.
+
+## Structure
+
+- **Title**: Single H1 with the project or tool name (e.g. `# Arcturus ECEF Tracker`).
+- **Major sections**: Use H2 for Overview, API/endpoints, Data structure, Flow/diagrams, and Usage.
+- **Subsections**: Use H3 for specific topics (e.g. "N2YO TLE endpoint", "Output CSV columns").
+- **Section separators**: Insert a horizontal rule `---` between major sections (after Overview, after API, after Data Structure, after Flow, before Usage is fine).
+
+## Overview
+
+- Open with the primary artifact in backticks (e.g. script or repo name), then one or two sentences on what it does.
+- Use **bold** for important terms and proper nouns (e.g. **Arcturus**, **Geodetic coordinates**).
+- Follow with a short bullet list of main outputs or features; each item: **Label**: brief description. Use symbols/units where helpful (°, km, etc.).
+- Add a closing paragraph if needed for how data is produced (e.g. time steps, ECI→ECEF, output format).
+
+## API and parameters
+
+- Document the endpoint in a small table: **Item** | **Value** (e.g. URL, Method, Path parameter, Query).
+- Put URLs, env vars, and field names in backticks or a table cell with inline code.
+- Use "—" (em dash) in table cells to separate name from explanation (e.g. `norad_id` — NORAD catalog ID).
+- **Environment**: Bullet list with **`VAR_NAME`** — description. State if required and what happens when missing.
+
+## Data structure
+
+- Use tables for structured data:
+  - **Columns/fields**: Column | Type | Description (or Field | Description).
+  - **Metrics/summary**: Metric | Description.
+- Identifiers (column names, metric names, env vars) in backticks: `timestamp_utc`, `lat_deg`, `API_KEY`.
+- Keep Type and Description concise; add units or ranges in parentheses when relevant (e.g. degrees [-180, 180]).
+
+## Flow and diagrams
+
+- Use **Mermaid** in fenced code blocks with ` ```mermaid `.
+- Prefer at least one diagram (flowchart or sequence) that matches the doc (e.g. input → fetch → compute → output).
+- Optional short intro line above a diagram (e.g. "High-level sequence:").
+- Use clear node/label names (ENV, N2YO, SGP4, CSV, etc.) and logical subgraphs if the diagram is complex.
+
+## Usage
+
+- **Prerequisites**: Bullet list (runtime, dependencies, env file). For `.env`, show a minimal example in a fenced block with language `env`.
+- **Command line**: Fenced block with language `bash`. Include a default invocation and 1–2 variants with comments (e.g. custom duration, custom output path).
+- **Arguments**: Table with columns Argument | Type | Default | Description. Use backticks for flags and defaults (`--hours`, `24.0`).
+- **Example output**: Fenced block with no language (plain). Show representative console output; use placeholders like `xxx.xxxxxx` for variable numbers if desired. Add one sentence on error behavior (e.g. missing API key, non-200 response).
+
+## General
+
+- End list items with a period when they are full sentences; optional for short labels.
+- Use backticks for: file names, env vars, CLI flags, field/column names, and short code identifiers.
+- Keep tone neutral and instructional; avoid marketing language.
