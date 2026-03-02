@@ -12,6 +12,7 @@ import tempfile
 from pathlib import Path
 import os
 import textwrap
+from io import BytesIO
 
 import numpy as np
 import pandas as pd
@@ -19,6 +20,10 @@ import streamlit as st
 import pydeck as pdk
 import requests
 from dotenv import load_dotenv
+try:
+    from PIL import Image, ImageDraw, ImageFont  # type: ignore
+except ImportError:
+    Image = ImageDraw = ImageFont = None
 
 # TLE history and burn detection (script lives in 01_query_api)
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "01_query_api"))
@@ -1046,7 +1051,10 @@ if generate_clicked:
 
 if ai_report:
     st.markdown("**AI Executive Briefing**")
-    st.markdown(ai_report)
+    # Show as plain text in the app.
+    st.text(ai_report)
+
+    # Always offer Markdown download of the raw AI output.
     st.download_button(
         label="Download AI report (Markdown)",
         data=ai_report,
@@ -1054,6 +1062,47 @@ if ai_report:
         mime="text/markdown",
         type="secondary",
     )
+
+    # Optional: render a simple PNG slide containing the AI text (requires Pillow).
+    if Image is not None:
+        try:
+            img_width, img_height = 1600, 900
+            background_color = (10, 15, 25)      # dark navy/black
+            text_color = (229, 231, 235)         # primary text
+
+            img = Image.new("RGB", (img_width, img_height), color=background_color)
+            draw = ImageDraw.Draw(img)
+
+            margin = 80
+            max_chars_per_line = 90
+            wrapped_text = textwrap.fill(ai_report, width=max_chars_per_line)
+
+            try:
+                font = ImageFont.truetype("DejaVuSans.ttf", 26)
+            except Exception:
+                font = ImageFont.load_default()
+
+            draw.multiline_text(
+                (margin, margin),
+                wrapped_text,
+                fill=text_color,
+                font=font,
+                spacing=6,
+            )
+
+            buf = BytesIO()
+            img.save(buf, format="PNG")
+            png_bytes = buf.getvalue()
+
+            st.download_button(
+                label="Download AI report (PNG)",
+                data=png_bytes,
+                file_name=f"arcturus_ai_report_{NORAD_ID}_{ts_first.strftime('%Y%m%d_%H%M')}.png",
+                mime="image/png",
+                type="secondary",
+            )
+        except Exception as e:
+            st.caption(f"PNG export unavailable: {e}")
 
 with st.expander("Track data (first 10 rows)"):
     st.dataframe(df.head(10), use_container_width=True, hide_index=True)
