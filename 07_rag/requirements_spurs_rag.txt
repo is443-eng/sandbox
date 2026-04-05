@@ -1,0 +1,1 @@
+-r ../08_function_calling/requirements_spurs_rag.txt

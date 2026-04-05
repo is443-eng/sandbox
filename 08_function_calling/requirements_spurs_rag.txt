@@ -1,0 +1,4 @@
+pandas>=2.0
+tabulate>=0.9.0
+requests>=2.28
+nba_api>=1.4.1
