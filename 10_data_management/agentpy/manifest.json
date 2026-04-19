@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "locale": "C.UTF-8",
+  "metadata": {
+    "appmode": "python-fastapi",
+    "entrypoint": "app.api:app"
+  },
+  "python": {
+    "version": "3.12.13",
+    "package_manager": {
+      "name": "pip",
+      "version": "26.0.1",
+      "package_file": "requirements.txt"
+    }
+  },
+  "files": {
+    "requirements.txt": {
+      "checksum": "9b088d20665a7b613166df1092fcbeaf"
+    },
+    ".env": {
+      "checksum": "e14e6c13347a2a6c902521292d86aa3c"
+    },
+    ".env.example": {
+      "checksum": "6fcb9882842516dfa2c5fa39e0ccd952"
+    },
+    "AGENT.md": {
+      "checksum": "f029a5b9cf11f7594871fd4dabedaa78"
+    },
+    "README.md": {
+      "checksum": "3bb7dc494f1c5480600f60c9ddb717c7"
+    },
+    "app/__init__.py": {
+      "checksum": "2f6b00056ab5afdc2294d13f9d247cbd"
+    },
+    "app/__pycache__/__init__.cpython-312.pyc": {
+      "checksum": "083728360974382945514d7e9c64aa83"
+    },
+    "app/__pycache__/api.cpython-312.pyc": {
+      "checksum": "03fd87bcb7dafd146a45efcb0af7f820"
+    },
+    "app/__pycache__/context.cpython-312.pyc": {
+      "checksum": "c5c239f8d68266ccdfafac52e2f0942c"
+    },
+    "app/__pycache__/guardrails.cpython-312.pyc": {
+      "checksum": "9b756f1ef163708e2b764aee23d3ac5f"
+    },
+    "app/__pycache__/logging_setup.cpython-312.pyc": {
+      "checksum": "3c1d1766ebf8336b8fd9815e59d0fe71"
+    },
+    "app/__pycache__/loop.cpython-312.pyc": {
+      "checksum": "d9bf544296ac4b32f5dc0e4b0182eb47"
+    },
+    "app/__pycache__/tools.cpython-312.pyc": {
+      "checksum": "d46db91cdc601c46c428f8902f84fba7"
+    },
+    "app/api.py": {
+      "checksum": "9027e00f5f2483ca42aa97af505decaf"
+    },
+    "app/context.py": {
+      "checksum": "2bb98340791dc58d7d6cf3232481e448"
+    },
+    "app/guardrails.py": {
+      "checksum": "f8e7ef95147f20172b0c48b5ca95c039"
+    },
+    "app/logging_setup.py": {
+      "checksum": "01dcf29eb8b1a7bfc32d2aa6820ec84d"
+    },
+    "app/loop.py": {
+      "checksum": "b675339cd970939b1cc98fc988c73f44"
+    },
+    "app/tools.py": {
+      "checksum": "8b75570729fff94d77656d37d0c14817"
+    },
+    "deployme.sh": {
+      "checksum": "3a837d853e60f0d9444d90f43edce636"
+    },
+    "logs/.gitkeep": {
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "logs/agent.log": {
+      "checksum": "eaedf25a8571420ac6fea366532dc147"
+    },
+    "manifestme.sh": {
+      "checksum": "fd837d4fa1b99c0f4841106c4931aa62"
+    },
+    "runme.sh": {
+      "checksum": "12e88633a8c4ce80a2749ce1b4ed8849"
+    },
+    "skills/README.md": {
+      "checksum": "3c547e6584a538f04ac9d6c35ec1e026"
+    },
+    "skills/disaster_situational_brief.md": {
+      "checksum": "057079b4db0098df375254c2fdf7e73b"
+    },
+    "skills/evidence_brief.md": {
+      "checksum": "e58557d9c01d606b480149cad5d87696"
+    },
+    "skills/references_section.md": {
+      "checksum": "393405910bf622ca65538fcb697317cc"
+    },
+    "skills/source_quality.md": {
+      "checksum": "7de50051c39b6c8d1e74b3d4ed1342cf"
+    },
+    "testme.py": {
+      "checksum": "53ae4b6f66644637aa6aee29099b5117"
+    }
+  }
+}
