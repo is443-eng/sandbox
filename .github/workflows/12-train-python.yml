@@ -27,9 +27,14 @@ jobs:
         working-directory: 12_end
         run: pip install -r requirements-train.txt
 
+      - name: Preflight (commit + 12_end layout)
+        run: |
+          git rev-parse HEAD
+          git log -1 --oneline
+          ls -la "${GITHUB_WORKSPACE}/12_end" || true
+
       - name: Train Brussels model
-        working-directory: 12_end
-        run: python3 02_train_model.py
+        run: python3 "${GITHUB_WORKSPACE}/12_end/02_train_model.py"
 
       - name: Upload xgboost-model artifact
         uses: actions/upload-artifact@v4
