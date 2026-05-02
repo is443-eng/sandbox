@@ -12,4 +12,6 @@ Imports:
     purrr,
     lubridate,
     DBI,
-    RSQLite
+    RSQLite,
+    xgboost,
+    jsonlite
