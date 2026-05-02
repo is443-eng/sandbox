@@ -1,0 +1,39 @@
+# Brussels traffic ingest (R). Commits 12_end/data/traffic.db when it changes.
+
+name: 12-ingest-r
+
+on:
+  schedule:
+    # Daily 06:00 UTC (staggered from Python ingest to reduce SQLite contention)
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest_r:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.4"
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: 12_end
+          cache-version: 1
+
+      - name: Ingest Brussels traffic
+        working-directory: 12_end
+        run: Rscript 01_ingest_traffic.R
+
+      - name: Commit and push traffic.db if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add 12_end/data/traffic.db
+          git diff --staged --quiet || (git commit -m "chore(12_end): update traffic.db (ingest R)" && git push)

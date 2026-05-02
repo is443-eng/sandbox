@@ -1,0 +1,15 @@
+Package: traffic.ingest.ci
+Title: CI Dependency Stub for Ingest Workflow
+Version: 0.0.1
+Authors@R: person("CI", email = "ci@local", role = c("aut", "cre"))
+Description: Anchors R package dependencies for GitHub Actions (12-ingest-r).
+License: MIT
+Encoding: UTF-8
+Imports:
+    httr2,
+    dplyr,
+    tibble,
+    purrr,
+    lubridate,
+    DBI,
+    RSQLite
