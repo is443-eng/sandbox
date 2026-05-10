@@ -1,0 +1,7 @@
+prompt_id,report_id,factual_accuracy,completeness,structure,spurs_bias,uses_we_our_for_spurs,opponent_named_fairly,quality_composite,details,error
+A,1,4,4,4,4,false,true,3.5,synthetic example,
+A,2,4,3,4,5,true,true,3.25,synthetic example,
+B,1,4,5,5,3,false,true,4.25,synthetic example,
+B,2,5,4,5,3,false,true,4.25,synthetic example,
+C,1,5,4,4,2,false,true,4.25,synthetic example,
+C,2,5,5,4,3,false,true,4.5,synthetic example,

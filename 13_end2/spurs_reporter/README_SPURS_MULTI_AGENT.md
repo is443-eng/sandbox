@@ -25,7 +25,7 @@
 | Item | Description |
 |------|-------------|
 | **Default DB** | `data/spurs_season.db` under `13_end2/spurs_reporter` (override with `--db`). |
-| **Table** | `player_game` — one row per player per game (`game_id`, `game_date`, `player_name`, box stats, `nba_season`). |
+| **Table** | `player_game` — one row per player per game (`game_id`, `game_date`, `team`, `player_name`, box stats, `nba_season`). After a DB refresh, recap pulls **both** Spurs (`team=SAS`) and opponent tricode lines for each game. |
 | **Table** | `game_line_score` — one row per `game_id`: Q1–Q4 (regulation), `spurs_final` / `opp_final` (full game), filled on `--refresh`. OT points = final − sum(Q1–Q4); recap markdown shows an **OT** column when needed. |
 | **Metadata** | `db_meta` — loaded NBA season after `--refresh` (`nba_season`, `season_type`). |
 
@@ -46,7 +46,7 @@ Each tool returns a **string**: markdown table, then **`precomputed_stats`** JSO
 |-----------|---------|------------|---------|
 | `search_spurs_player_games` | Token/LIKE search on name, matchup, date text, `wl`. | `query` (required), `limit` (optional). | Table + stats for matching rows. |
 | `spurs_player_games_in_month` | Rows in a **calendar month** with optional player filter. | `year`, `month` (1–12), `player_name_substr`, `limit` (optional). | Table + stats for that slice. |
-| `spurs_recap_spurs_game` | Full **Spurs roster** for **one** game (one `game_date`). | `game_date` (optional `YYYY-MM-DD`; omit = latest game in DB for active season), `limit` (optional). | Full-game table + stats. |
+| `spurs_recap_spurs_game` | Full-game **box score lines for both teams** for **one** game (one `game_date`). | `game_date` (optional `YYYY-MM-DD`; omit = latest game in DB for active season), `limit` (optional). | Full-game table + stats. |
 
 **Semantics**
 
@@ -78,6 +78,7 @@ flowchart LR
 | Situation | Behavior |
 |-----------|----------|
 | **Empty DB** | Process exits with a message to run `python spurs_season_rag.py --refresh --season …` from `13_end2/spurs_reporter`. |
+| **Opponent box lines** | Run `python spurs_season_rag.py --refresh` (or your refresh entrypoint) after upgrading so historical games include opponent `player_game` rows; older DBs may be Spurs-only until refreshed. |
 | **`--season` ≠ `db_meta`** | Exit with error; refresh for that season or omit `--season`. |
 | **No rows** | Tool returns a short explanation; Agent 2 states no data (fact prompt). |
 | **Month tool, wrong spelling** | “No rows … check spelling or month/year.” |

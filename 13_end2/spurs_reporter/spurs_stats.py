@@ -14,44 +14,58 @@ def _to_float(v) -> float:
         return 0.0
 
 
+SAS_TEAM = "SAS"
+
+
+def _is_spurs_team_record(r: dict) -> bool:
+    return str(r.get("team", "")).upper().strip() == SAS_TEAM
+
+
+def _accumulate_player_row(by_player: dict[str, dict], r: dict) -> None:
+    name = str(r.get("player_name", "")).strip()
+    if not name:
+        return
+    if name not in by_player:
+        by_player[name] = {
+            "games": 0,
+            "wins": 0,
+            "losses": 0,
+            "pts_sum": 0.0,
+            "reb_sum": 0.0,
+            "ast_sum": 0.0,
+            "stl_sum": 0.0,
+            "blk_sum": 0.0,
+            "turnovers_sum": 0.0,
+            "plus_minus_sum": 0.0,
+        }
+    st = by_player[name]
+    st["games"] += 1
+    wl = str(r.get("wl", "")).upper()
+    if wl == "W":
+        st["wins"] += 1
+    elif wl == "L":
+        st["losses"] += 1
+    st["pts_sum"] += _to_float(r.get("pts", 0))
+    st["reb_sum"] += _to_float(r.get("reb", 0))
+    st["ast_sum"] += _to_float(r.get("ast", 0))
+    st["stl_sum"] += _to_float(r.get("stl", 0))
+    st["blk_sum"] += _to_float(r.get("blk", 0))
+    st["turnovers_sum"] += _to_float(r.get("turnovers", 0))
+    st["plus_minus_sum"] += _to_float(r.get("plus_minus", 0))
+
+
 def compute_precomputed_stats(records: list[dict]) -> dict:
     """Deterministic aggregates computed in Python to prevent LLM math errors."""
     by_player: dict[str, dict] = {}
+    by_player_spurs: dict[str, dict] = {}
     games_set = set()
     for r in records:
         game_id = str(r.get("game_id", ""))
         if game_id:
             games_set.add(game_id)
-        name = str(r.get("player_name", "")).strip()
-        if not name:
-            continue
-        if name not in by_player:
-            by_player[name] = {
-                "games": 0,
-                "wins": 0,
-                "losses": 0,
-                "pts_sum": 0.0,
-                "reb_sum": 0.0,
-                "ast_sum": 0.0,
-                "stl_sum": 0.0,
-                "blk_sum": 0.0,
-                "turnovers_sum": 0.0,
-                "plus_minus_sum": 0.0,
-            }
-        st = by_player[name]
-        st["games"] += 1
-        wl = str(r.get("wl", "")).upper()
-        if wl == "W":
-            st["wins"] += 1
-        elif wl == "L":
-            st["losses"] += 1
-        st["pts_sum"] += _to_float(r.get("pts", 0))
-        st["reb_sum"] += _to_float(r.get("reb", 0))
-        st["ast_sum"] += _to_float(r.get("ast", 0))
-        st["stl_sum"] += _to_float(r.get("stl", 0))
-        st["blk_sum"] += _to_float(r.get("blk", 0))
-        st["turnovers_sum"] += _to_float(r.get("turnovers", 0))
-        st["plus_minus_sum"] += _to_float(r.get("plus_minus", 0))
+        _accumulate_player_row(by_player, r)
+        if _is_spurs_team_record(r):
+            _accumulate_player_row(by_player_spurs, r)
 
     out = {}
     for name, st in by_player.items():
@@ -70,9 +84,11 @@ def compute_precomputed_stats(records: list[dict]) -> dict:
             "plus_minus_avg": round(st["plus_minus_sum"] / g, 2),
         }
 
-    # One W/L per game_id (Spurs team result). Use for head-to-head series record — not per_player rows.
+    # One W/L per game_id (Spurs team result only — ignore opponent rows).
     wl_by_game: dict[str, str] = {}
     for r in records:
+        if not _is_spurs_team_record(r):
+            continue
         gid = str(r.get("game_id", "")).strip()
         if not gid:
             continue
@@ -82,7 +98,7 @@ def compute_precomputed_stats(records: list[dict]) -> dict:
     series_w = sum(1 for w in wl_by_game.values() if w == "W")
     series_l = sum(1 for w in wl_by_game.values() if w == "L")
 
-    # Sorted by PPG for quick head-to-head narratives (full detail remains in per_player).
+    # Sorted by PPG for quick head-to-head narratives (Spurs players only).
     scoring_ranked = sorted(
         (
             {
@@ -91,7 +107,7 @@ def compute_precomputed_stats(records: list[dict]) -> dict:
                 "ppg": round(st["pts_sum"] / max(int(st["games"]), 1), 2),
                 "total_pts": int(round(st["pts_sum"])),
             }
-            for n, st in by_player.items()
+            for n, st in by_player_spurs.items()
         ),
         key=lambda x: (-x["ppg"], x["player_name"]),
     )

@@ -21,6 +21,26 @@ from nba_api.stats.static import teams
 
 SAS_ABBREV = "SAS"
 
+
+def _opponent_wl_from_spurs(spurs_wl: str) -> str:
+    """Invert Spurs W/L for opponent player_game rows (same game)."""
+    u = str(spurs_wl).upper().strip()
+    if u == "W":
+        return "L"
+    if u == "L":
+        return "W"
+    return str(spurs_wl).strip()
+
+
+def _player_name_from_box_row(row: pd.Series) -> str:
+    name = str(row.get("nameI", "")).strip()
+    if not name:
+        fn = str(row.get("firstName", "") or "")
+        ln = str(row.get("familyName", "") or "")
+        name = f"{fn} {ln}".strip()
+    return name
+
+
 # Lowercase token → NBA tricode (`matchup` uses tricodes, e.g. SAS @ OKC, not team nicknames).
 _OPPONENT_NICKNAME_TO_TRICODE: dict[str, str] = {
     "thunder": "OKC",
@@ -480,11 +500,7 @@ def refresh_from_api(
             return
         try:
             for _, row in sas.iterrows():
-                name = str(row.get("nameI", "")).strip()
-                if not name:
-                    fn = str(row.get("firstName", "") or "")
-                    ln = str(row.get("familyName", "") or "")
-                    name = f"{fn} {ln}".strip()
+                name = _player_name_from_box_row(row)
                 mins = row.get("minutes", "")
                 conn.execute(
                     """
@@ -499,6 +515,40 @@ def refresh_from_api(
                         meta["matchup"],
                         meta["wl"],
                         SAS_ABBREV,
+                        name,
+                        str(mins) if mins is not None else "",
+                        int(row.get("points", 0) or 0),
+                        int(row.get("reboundsTotal", 0) or 0),
+                        int(row.get("assists", 0) or 0),
+                        int(row.get("steals", 0) or 0),
+                        int(row.get("blocks", 0) or 0),
+                        int(row.get("turnovers", 0) or 0),
+                        int(row.get("plusMinusPoints", 0) or 0),
+                        season,
+                    ),
+                )
+                inserted += 1
+            opp_wl = _opponent_wl_from_spurs(meta["wl"])
+            opp_df = df[df["teamTricode"].astype(str) != SAS_ABBREV]
+            for _, row in opp_df.iterrows():
+                tri = str(row.get("teamTricode", "") or "").strip()
+                if not tri:
+                    continue
+                name = _player_name_from_box_row(row)
+                mins = row.get("minutes", "")
+                conn.execute(
+                    """
+                    INSERT INTO player_game (
+                        game_id, game_date, matchup, wl, team, player_name,
+                        min, pts, reb, ast, stl, blk, turnovers, plus_minus, nba_season
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        gid,
+                        meta["game_date"],
+                        meta["matchup"],
+                        opp_wl,
+                        tri[:12],
                         name,
                         str(mins) if mins is not None else "",
                         int(row.get("points", 0) or 0),
@@ -755,7 +805,7 @@ def rows_for_game_id(
     limit: int = 500,
 ) -> pd.DataFrame:
     """
-    All player lines for a single ``game_id`` (Spurs rows only in this DB).
+    All player lines for a single ``game_id`` (Spurs and opponent rows after ``--refresh``).
 
     ``game_id`` is normalized to a 10-digit string when numeric.
     """
@@ -787,6 +837,7 @@ def rows_for_game_on_date(
 
     The Spurs typically have at most one game per calendar day; if multiple ``game_id``
     values exist, all matching rows are returned up to ``limit``.
+    Rows are ordered Spurs first (``team=SAS``), then opponent tricode, then player name.
     """
     d = str(game_date).strip()
     season_sql, season_params = _nba_season_filter_sql(nba_season)
@@ -796,7 +847,10 @@ def rows_for_game_on_date(
     sql = f"""
         {_SELECT_PLAYER_GAME.strip()}
         WHERE game_date = ?{season_sql}
-        ORDER BY game_id ASC, player_name ASC
+        ORDER BY game_id ASC,
+            CASE WHEN team = 'SAS' THEN 0 ELSE 1 END ASC,
+            team ASC,
+            player_name ASC
         LIMIT ?
     """
     return pd.read_sql_query(sql, conn, params=tuple(params))

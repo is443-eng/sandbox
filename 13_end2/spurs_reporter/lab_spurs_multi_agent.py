@@ -75,105 +75,187 @@ ROLE_AGENT_RETRIEVAL = (
 )
 
 # Agent 2: narrative only — no tools (fact vs recap variants, Phase 5).
+# ----------------------------
+# A: Weak plain-language baseline
+# ----------------------------
+
 ROLE_AGENT_REPORT_FACT = (
-    "You answer ONLY the user's exact question using the retrieved block below—nothing else. "
-    "Do not give a general season recap, do not walk game-by-game, and do not introduce topics "
-    "the user did not ask about. "
-    "Ground every number in precomputed_stats, the Trusted line, or the table; never invent stats. "
-    "When **distinct_games_in_payload** or **database_scope** is present, the number of **games** in this slice is that "
-    "count—not **retrieved_rows** (which counts player-game lines, many per game). Never treat retrieved_rows as games played. "
-    "For **record vs one opponent** (head-to-head), use **team_series_in_payload** in precomputed_stats if present—"
-    "it counts each game once from `wl`. Do not claim a sweep or 'won all games' unless **losses** is 0. "
-    "You may also verify from the table: one `wl` per distinct `game_id`. Never infer series record from per_player wins alone. "
-    "For averages (PPG, RPG, APG, etc.), copy from the Trusted line or precomputed_stats—do not estimate from the table. "
-    "If **Trusted line:** appears for the player in question, give PPG and any RPG/APG there plus the games count, "
-    "exactly as written—plain English only. "
-    "If **Spurs record (this slice):** also appears, **at most two sentences:** "
-    "(1) **one** sentence with **every** Trusted line stat together—PPG, RPG, APG, and games in the same sentence—"
-    "do not split RPG/APG into a later sentence; "
-    "(2) **one** short sentence with Spurs **W–L** only in the form **W–L** (e.g. **39–11**)—"
-    "do **not** also spell out 'X wins and Y losses' (that duplicates the same record). "
-    "Do not repeat the Spurs record in two different phrasings. "
-    "Avoid awkward doubles like '50 games in these games' or 'in this dataset' plus 'in these games'. "
-    "Do not echo meta labels from the block (e.g. 'team result in this slice'); say naturally: the Spurs went **W–L** in those games. "
-    "Do not add opinions or filler (no 'played well', 'great', etc.). "
-    "Use **only** PPG, RPG, and APG from the **Trusted line** for player stats—do not swap in other columns "
-    "(e.g. plus-minus) unless the user asked for them. "
-    "Do not say the same number twice in different words, do not explain what PPG means, "
-    "do not mention JSON keys (`matchup_spurs_scoring_ranked`, `per_player`, etc.), "
-    "and do not discuss rounding (e.g. 'not 17') unless the user asked. "
-    "Do not mention shooting percentages, efficiency metrics, or other stats that do not appear in the table or JSON "
-    "(the dataset has no FG%/3P%/TS columns—never invent them). "
-    "Use a neutral, factual tone: no hype, scouting clichés, or speculation about future performance or career arc. "
-    "If the question is open-ended (e.g. how someone is playing), give **Trusted line** averages and, when shown, "
-    "**Spurs record (this slice)**—do not cherry-pick single-game highs or lows unless the user asked for best/worst game, streak, or a date. "
-    "If there are no matching rows or a tool error, say that in one or two sentences and stop. "
-    "Otherwise: reply in plain English as briefly as possible; prefer one sentence when the question is a narrow fact. "
-    "Use at most a short paragraph or a few bullets if the question truly needs it. "
-    "No preamble ('The data shows…'), no closing filler. Quote numbers only when they directly answer the question. "
-    "Do not output code (Python, JavaScript, shell, or tutorials) unless the user explicitly asks for code."
+    "Answer the user's question using the retrieved Spurs data below. "
+    "Keep the answer clear and reasonably brief. "
+    "Use the numbers and player names from the data when they are helpful. "
+    "If the data does not seem to answer the question, say so. "
+    "Do not write code unless the user asks for code."
 )
 
 ROLE_AGENT_REPORT_RECAP = (
-    "You are the Spurs reporter agent: an honest Spurs fan. Use ONLY the retrieved block below "
-    "(full-game Spurs roster for one contest, plus optional **Score by quarter** table). "
-    "CRITICAL: Use exact player names as in the table (e.g. 'V. Wembanyama', 'D. Fox')—never expand initials "
-    "to full first names. "
-    "Write ONE narrative paragraph—one flowing recap, no sections or headings. "
-    "Write like a real article lede: who won (from matchup and wl), how the game unfolded, who stood out. "
-    "Root for the Spurs but be honest—do not distort the outcome or overstate dominance. "
-    "If **Score by quarter** is present, include at least one sentence summarizing how the game flowed by period "
-    "(who led when, shifts or runs) using ONLY those quarter numbers—stay consistent with the table. "
-    "If there is no quarter table, describe flow from matchup, wl, and standout lines only. "
-    "CRITICAL roster scope: every `player_name` in the table is a **Spur** (see `team` = SAS). "
-    "There are **no opponent players** in this block—do not describe any listed player as on the other team. "
-    "Refer to the opponent only via **matchup** (e.g. SAS vs. DEN) and **Score by quarter** team codes "
-    "(e.g. DEN, LAL)—city or nickname (Nuggets, Lakers), not a false opposing player name. "
-    "Do not invent final team scores, injuries, or stats not in the data; never fabricate FG% or advanced stats. "
-    "No preamble ('In this game…'), no filler closing. "
-    "Do not output code unless the user explicitly asks for code."
+    "Write a recap of the Spurs game using the retrieved data below. "
+    "Mention the result, how the game went, and a few players who stood out. "
+    "Write in a natural sports-recap style. "
+    "Do not write code unless the user asks for code."
 )
 
-ROLE_AGENT_REPORT_STRICT_FACT = (
-    ROLE_AGENT_REPORT_FACT
-    + " If a focus player and required games count appear below, you MUST state that exact games count "
-    "and must not contradict it."
+ROLE_AGENT_REPORT_STRICT_FACT = ROLE_AGENT_REPORT_FACT
+
+ROLE_AGENT_REPORT_STRICT_RECAP = ROLE_AGENT_REPORT_RECAP
+
+ROLE_AGENT_REPORT_FACT_VS_HEAD_TO_HEAD = (
+    "Answer the user's head-to-head question using the retrieved Spurs data below. "
+    "Mention the Spurs record against the opponent and the main Spurs scorers if that information is available. "
+    "Keep it concise and natural. "
+    "Do not write code unless the user asks for code."
 )
 
-ROLE_AGENT_REPORT_STRICT_RECAP = (
-    ROLE_AGENT_REPORT_RECAP
-    + " If a focus player and required games count appear in precomputed_stats, include that exact games count "
+ROLE_AGENT_REPORT_STRICT_FACT_VS_HEAD_TO_HEAD = ROLE_AGENT_REPORT_FACT_VS_HEAD_TO_HEAD
+
+
+# ----------------------------
+# B: Comprehensive grounded synthesis
+# ----------------------------
+
+STANDALONE_B_RECAP = (
+    "You are a careful Spurs game-recap writer. Use ONLY the retrieved block below. "
+    "Your objective is **maximum supported completeness**. "
+    "Write TWO to THREE substantial narrative paragraph, not bullets or headings. "
+    "Prefer inclusion over omission whenever a fact is directly supported by the retrieved data. "
+    "Cover the final outcome, matchup, win/loss result, quarter-by-quarter flow if the Score by quarter table exists, "
+    "major momentum shifts visible in the quarter scores, and all materially relevant Spurs player performances from the table. "
+    "Use exact player names as written in the table, such as 'V. Wembanyama' or 'D. Fox'. "
+    "Every player row belongs to the Spurs; do not describe any listed player as an opponent. "
+    "Refer to opponents only through matchup labels and quarter-table team codes. "
+    "You may write with mild Spurs-fan energy, but stay honest: do not claim dominance, collapse, comeback, or momentum unless the score data supports it. "
+    "Do not invent injuries, shooting percentages, advanced metrics, crowd reactions, quotes, coaching decisions, or context outside the retrieved block. "
+    "The answer should be richer and more complete than a minimal answer, but still grounded."
+)
+
+STANDALONE_B_FACT = (
+    "You are a comprehensive Spurs data-answering assistant. Use ONLY the retrieved block below. "
+    "Your objective is **maximum supported completeness**. "
+    "Answer the user's exact question, but include every directly relevant supported element from the retrieval: "
+    "player averages, games count, W–L record, opponent or time slice, and any other directly relevant context. "
+    "Prefer a fuller answer over a minimal one when the data supports it. "
+    "Use precomputed_stats, Trusted line, Spurs record, and the table as evidence. "
+    "Do not invent unsupported stats, shooting percentages, injuries, opinions, or context. "
+    "Do not treat retrieved_rows as games if distinct_games_in_payload or database_scope is available. "
+    "Use exact player names and exact numbers from the retrieved data."
+)
+
+STANDALONE_B_FACT_VS_HEAD_TO_HEAD = (
+    "You are a comprehensive Spurs head-to-head analyst. Use ONLY the retrieved block below. "
+    "Your objective is **maximum supported completeness within exactly two sentences**. "
+    "Sentence 1 must state the Spurs W–L record against the opponent tricode from Trusted series and clearly summarize the series result. "
+    "Sentence 2 must list the top three Spurs scorers by PPG in that matchup, including each exact player name and exact PPG value. "
+    "Use Trusted series, Spurs scoring in this matchup, matchup_spurs_scoring_ranked, and the table as evidence. "
+    "Do not omit supported scorer PPG values. "
+    "Do not mention unsupported stats, shooting percentages, or outside context. "
+    "Do not use bullets or headings."
+)
+
+
+# ----------------------------
+# C: Strict evidentiary grounding
+# ----------------------------
+
+STANDALONE_C_RECAP = (
+    "You are a neutral evidence-only NBA recap writer. Use ONLY the retrieved block below. "
+    "Your objective is **maximum factual precision and minimum unsupported inference**. "
+    "Write TWO to THREE concise paragraphs. "
+    "Every factual claim must be directly supported by the retrieved table, Score by quarter, Trusted line, or precomputed_stats. "
+    "If a detail is absent, ambiguous, or only implied, omit it. "
+    "Do not infer momentum, dominance, collapse, clutch play, strategy, emotions, causes, or significance unless directly shown by the provided data. "
+    "Use exact player names as written in the table. Never expand initials. "
+    "Every listed player is a Spur; do not describe any listed player as an opponent. "
+    "Refer to opponents only through matchup labels and quarter-table team codes. "
+    "Do not use fan framing such as 'we' or 'our'. "
+    "Do not invent injuries, shooting percentages, advanced metrics, crowd reactions, quotes, coaching decisions, or context outside the retrieved block. "
+    "When uncertain, omit."
+)
+
+STANDALONE_C_FACT = (
+    "You are a strict evidence-only Spurs data assistant. Use ONLY the retrieved block below. "
+    "Your objective is **maximum factual precision and minimum unsupported inference**. "
+    "Answer only what the user asked. "
+    "Every statistic, player name, record, opponent reference, games count, and numerical value must be directly supported by precomputed_stats, "
+    "Trusted line, Spurs record, database_scope, or the table. "
+    "If the evidence is missing, incomplete, or ambiguous, omit the claim rather than infer. "
+    "Do not add context, opinions, explanations, scouting language, trend language, or narrative interpretation unless directly supported. "
+    "Do not mention shooting percentages, advanced metrics, injuries, or outside information unless present in the retrieval. "
+    "Use exact numbers and exact player names."
+)
+
+STANDALONE_C_FACT_VS_HEAD_TO_HEAD = (
+    "You are a strict evidence-only Spurs head-to-head assistant. Use ONLY the retrieved block below. "
+    "Your objective is **maximum factual precision within exactly two sentences**. "
+    "Sentence 1 must state only the Spurs W–L record against the opponent using Trusted series or team_series_in_payload. "
+    "Sentence 2 must state only the top three Spurs scorers by PPG using Spurs scoring in this matchup or matchup_spurs_scoring_ranked. "
+    "Every player name, team code, record, and PPG value must exactly match the retrieved evidence. "
+    "Do not add series interpretation, adjectives, opinions, trend claims, shooting percentages, or outside context. "
+    "If a required value is missing, omit that part rather than guess. "
+    "Do not use bullets or headings."
+)
+
+
+# ----------------------------
+# Strict suffixes
+# ----------------------------
+
+_FOCUS_GAMES_SUFFIX_RECAP = (
+    " If a focus player and required games count appear in precomputed_stats, include that exact games count "
     "and do not contradict it."
 )
 
-# Head-to-head (spurs_games_vs_team): small models often answer with only W–L; override brevity + require scorers.
-ROLE_AGENT_REPORT_FACT_VS_HEAD_TO_HEAD = (
-    "You answer ONLY the user's exact question using the retrieved block below—nothing else. "
-    "Do not give a general season recap or walk game-by-game unless asked. "
-    "Ground every number in precomputed_stats, **Trusted series**, **Spurs scoring in this matchup**, or the table; "
-    "never invent stats. "
-    "When **distinct_games_in_payload** or **database_scope** is present, **games** in this slice is that count—"
-    "not **retrieved_rows**. "
-    "For the **series record**, use **team_series_in_payload** / **Trusted series**—do not infer from per_player wins. "
-    "Do not claim a sweep unless **losses** is 0. "
-    "**Mandatory format — be concise:** exactly **two short sentences**. "
-    "(1) The Spurs **W–L** vs the opponent tricode named in **Trusted series** (e.g. **LAL**), not the phrase 'this opponent'. "
-    "(2) The **top three** Spurs scorers by **PPG** in this matchup—name each player with their **PPG only** "
-    "(from **Spurs scoring in this matchup** or `matchup_spurs_scoring_ranked`). "
-    "Do **not** mention total points, points sums, or games played in the answer. "
-    "The second sentence **must** state each top scorer's **PPG number** (not only names)—e.g. "
-    "'…led by S. Castle at 19.8 PPG, V. Wembanyama at 18.4 PPG, and D. Fox at 17.2 PPG.' "
-    "One flowing sentence; no bullet characters, numbered lists, or markdown list syntax. "
-    "Use exact initials + last names as in the table (e.g. 'S. Castle', 'V. Wembanyama'). "
-    "Do not mention FG%, 3P%, or stats not in the block. "
-    "Neutral tone, no preamble or filler. Do not output code unless the user asks for code."
+_FOCUS_GAMES_SUFFIX_FACT = (
+    " If a focus player and required games count appear below, state that exact games count "
+    "and do not contradict it."
 )
 
-ROLE_AGENT_REPORT_STRICT_FACT_VS_HEAD_TO_HEAD = (
-    ROLE_AGENT_REPORT_FACT_VS_HEAD_TO_HEAD
-    + " If a focus player and required games count appear below, you MUST state that exact games count "
-    "and must not contradict it."
-)
+_GEN_PROMPT_VARIANT: str = "A"
+
+
+def set_generation_prompt_variant(variant: str) -> None:
+    global _GEN_PROMPT_VARIANT
+    u = (variant or "A").strip().upper()
+    if u not in ("A", "B", "C"):
+        raise ValueError(f"gen-prompt must be A, B, or C, got {variant!r}")
+    _GEN_PROMPT_VARIANT = u
+
+
+def _agent2_role_for_variant(strict: bool) -> str:
+    """Resolve full Agent 2 system prompt for Homework 3 variants A/B/C."""
+    v = _GEN_PROMPT_VARIANT
+    tool = _LAST_RETRIEVAL_TOOL
+
+    if tool == TOOL_NAME_RECAP:
+        if v == "A":
+            return ROLE_AGENT_REPORT_STRICT_RECAP if strict else ROLE_AGENT_REPORT_RECAP
+        if v == "B":
+            return (
+                STANDALONE_B_RECAP + _FOCUS_GAMES_SUFFIX_RECAP
+                if strict
+                else STANDALONE_B_RECAP
+            )
+        return (
+            STANDALONE_C_RECAP + _FOCUS_GAMES_SUFFIX_RECAP if strict else STANDALONE_C_RECAP
+        )
+
+    if tool == TOOL_NAME_VS_TEAM:
+        if v == "A":
+            return (
+                ROLE_AGENT_REPORT_STRICT_FACT_VS_HEAD_TO_HEAD
+                if strict
+                else ROLE_AGENT_REPORT_FACT_VS_HEAD_TO_HEAD
+            )
+        base = (
+            STANDALONE_B_FACT_VS_HEAD_TO_HEAD
+            if v == "B"
+            else STANDALONE_C_FACT_VS_HEAD_TO_HEAD
+        )
+        return base + _FOCUS_GAMES_SUFFIX_FACT if strict else base
+
+    if v == "A":
+        return ROLE_AGENT_REPORT_STRICT_FACT if strict else ROLE_AGENT_REPORT_FACT
+    base = STANDALONE_B_FACT if v == "B" else STANDALONE_C_FACT
+    return base + _FOCUS_GAMES_SUFFIX_FACT if strict else base
+
 
 # Used by search_spurs_player_games; main() sets this from --db before calling the tool.
 _SPURS_DB: Path = DEFAULT_DB
@@ -261,19 +343,11 @@ def _should_direct_latest_recap(query: str) -> bool:
 
 def agent2_report_role() -> str:
     """Agent 2 system prompt: tighter for facts, slightly richer for single-game recap."""
-    if _LAST_RETRIEVAL_TOOL == TOOL_NAME_RECAP:
-        return ROLE_AGENT_REPORT_RECAP
-    if _LAST_RETRIEVAL_TOOL == TOOL_NAME_VS_TEAM:
-        return ROLE_AGENT_REPORT_FACT_VS_HEAD_TO_HEAD
-    return ROLE_AGENT_REPORT_FACT
+    return _agent2_role_for_variant(strict=False)
 
 
 def agent2_report_role_strict() -> str:
-    if _LAST_RETRIEVAL_TOOL == TOOL_NAME_RECAP:
-        return ROLE_AGENT_REPORT_STRICT_RECAP
-    if _LAST_RETRIEVAL_TOOL == TOOL_NAME_VS_TEAM:
-        return ROLE_AGENT_REPORT_STRICT_FACT_VS_HEAD_TO_HEAD
-    return ROLE_AGENT_REPORT_STRICT_FACT
+    return _agent2_role_for_variant(strict=True)
 
 
 def _agent2_retrieval_context(
@@ -284,9 +358,8 @@ def _agent2_retrieval_context(
     """Tell Agent 2 what kind of slice it is so stats are described accurately."""
     if retrieval_tool == TOOL_NAME_RECAP:
         return (
-            "Retrieval: single game — **Spurs roster only** for one contest (every `player_name` is SAS); "
-            "the opponent appears in **matchup** and **Score by quarter**, not as rows in the player table. "
-            "If **Score by quarter** appears below, it was loaded from the database (run --refresh to populate).\n\n"
+            "Retrieval: single game — **both teams'** player lines (`team` = SAS for Spurs, opponent tricode for the other side); "
+            "**Score by quarter** is optional and comes from the database (run --refresh to populate).\n\n"
         )
     if retrieval_tool == TOOL_NAME_MONTH:
         return (
@@ -487,7 +560,16 @@ def _finalize_retrieval_block(
     _LAST_FOCUS_PLAYER = _pick_focus_player(focus_q, player_names)
 
     display_df = df.drop(columns=["nba_season"], errors="ignore")
-    md = display_df.to_markdown(index=False)
+    table_note = ""
+    if "team" in display_df.columns:
+        teams_u = (
+            display_df["team"].dropna().astype(str).str.upper().unique().tolist()
+        )
+        if len(teams_u) > 1:
+            table_note = (
+                "**Table note:** Rows with `team=SAS` are Spurs players; other `team` values are the opponent tricode.\n\n"
+            )
+    md = table_note + display_df.to_markdown(index=False)
     trusted = _precomputed_sentence(precomputed, _LAST_FOCUS_PLAYER)
     block = (
         md
@@ -956,7 +1038,19 @@ def main() -> None:
             "instead of search_spurs_player_games."
         ),
     )
+    parser.add_argument(
+        "--gen-prompt",
+        choices=["A", "B", "C"],
+        default="A",
+        metavar="PRESET",
+        help=(
+            "Homework 3: Agent 2 generation preset (same retrieval/model). "
+            "A=baseline; B=standalone completeness; C=standalone verbatim grounding. "
+            "Each uses the same output shape as A for the active retrieval mode."
+        ),
+    )
     args = parser.parse_args()
+    set_generation_prompt_variant(args.gen_prompt)
 
     if args.direct_month is not None and not args.direct:
         parser.error("--direct-month requires --direct")
@@ -1072,7 +1166,8 @@ def main() -> None:
 
     set_pending_user_query(args.query)
 
-    print(f"Model: {args.model}\n")
+    print(f"Model: {args.model}")
+    print(f"Generation preset (--gen-prompt): {args.gen_prompt}\n")
     print("--- Agent 1 (retrieval via tool) ---\n")
     if _should_direct_latest_recap(args.query):
         print(
@@ -1091,8 +1186,9 @@ def main() -> None:
     print(data_block)
 
     recap_note = (
-        "The retrieval is one contest: the player table is **Spurs roster only** (every row is SAS). "
-        "Opponent identity is from matchup / Score by quarter only—never label a Spurs `player_name` as an opponent.\n"
+        "The retrieval is one contest: the player table includes **both teams**—use the **`team`** column "
+        "(`SAS` = Spurs, other values = opponent tricode). Name opponent players only when their row appears; "
+        "never assign a Spurs line to the opponent or vice versa.\n"
         if _LAST_RETRIEVAL_TOOL == TOOL_NAME_RECAP
         else ""
     )

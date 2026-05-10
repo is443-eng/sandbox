@@ -6,7 +6,7 @@
 
 ## Overview
 
-- **`spurs_season_store.py`** — Creates `data/spurs_season.db`, tables `player_game` and `game_line_score` (quarter team scoring), loads Spurs games for a single season via **nba_api** (LeagueGameFinder + BoxScoreTraditionalV3 + BoxScoreSummary for quarters), **search** with SQL `LIKE`.
+- **`spurs_season_store.py`** — Creates `data/spurs_season.db`, tables `player_game` and `game_line_score` (quarter team scoring), loads Spurs games for a single season via **nba_api** (LeagueGameFinder + BoxScoreTraditionalV3 + BoxScoreSummary for quarters). **`--refresh`** inserts **Spurs and opponent** player lines per game (opponent `wl` is inverted from the Spurs result). **Search** uses SQL `LIKE`.
 - **`spurs_season_rag.py`** — CLI: `--refresh` to load data; positional **query** retrieves rows, passes **JSON + allowed names** to the LLM for a **season-style breakdown**.
 
 ---
@@ -48,12 +48,12 @@ python spurs_season_rag.py "Fox" --search-limit 60 --model llama3
 | `game_id` | NBA game ID |
 | `game_date` | Date |
 | `matchup` | e.g. `SAS @ CHA` |
-| `wl` | W or L (Spurs) |
-| `team` | `SAS` |
+| `wl` | For `team=SAS`, Spurs W/L; for opponent rows, that team's outcome (inverted from Spurs in the same game). |
+| `team` | `SAS` or opponent tricode (e.g. `DEN`). |
 | `player_name` | e.g. `V. Wembanyama` (from API `nameI`) |
 | `min`, `pts`, `reb`, `ast`, `stl`, `blk`, `turnovers`, `plus_minus` | Box line |
 
-| `game_line_score` | One row per `game_id`: regulation quarters, `spurs_final` / `opp_final` (API final scores, includes OT). Re-run `--refresh` to backfill after upgrades. |
+| `game_line_score` | One row per `game_id`: regulation quarters, `spurs_final` / `opp_final` (API final scores, includes OT). Re-run `--refresh` to backfill after upgrades (including opponent `player_game` rows). |
 
 ---
 
