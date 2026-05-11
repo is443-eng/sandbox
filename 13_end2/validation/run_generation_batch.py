@@ -5,11 +5,14 @@ and write reports_batch.csv for batch_validate.py.
 
 Total subprocess runs = len(prompts) × replicates (default prompts A,B,C → e.g. 3 × 10 = 30).
 If --validate is set, batch_validate runs once per row (same count of validator API calls).
+
+Use --recap-game-date YYYY-MM-DD to fix which game is recapped on every run (same retrieval).
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 import time
@@ -70,6 +73,15 @@ def main() -> None:
             "Give me a recap of the Spurs' latest game in the database."
         ),
         help="User question passed to the lab (same for all runs unless you script externally).",
+    )
+    ap.add_argument(
+        "--recap-game-date",
+        default=None,
+        metavar="YYYY-MM-DD",
+        help=(
+            "If set, replaces --query with a recap request for this exact ISO date so every "
+            "run uses the same game (reduces retrieval variance across replicates)."
+        ),
     )
     ap.add_argument(
         "-n",
@@ -150,6 +162,21 @@ def main() -> None:
     )
     args = ap.parse_args()
 
+    lab_query = args.query
+    if args.recap_game_date is not None:
+        gd = str(args.recap_game_date).strip()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", gd):
+            print(
+                "Error: --recap-game-date must be YYYY-MM-DD "
+                f"(got {args.recap_game_date!r})",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        lab_query = (
+            f"Give me a recap of the Spurs game played on {gd}. "
+            f"Use spurs_recap_spurs_game with game_date={gd}."
+        )
+
     lab_path = args.lab.resolve()
     if not lab_path.is_file():
         print(f"Lab script not found: {lab_path}", file=sys.stderr)
@@ -167,6 +194,11 @@ def main() -> None:
         f"Design: {len(prompts)} prompts × {args.replicates} replicates = {total_runs} lab runs.",
         file=sys.stderr,
     )
+    if args.recap_game_date:
+        print(
+            f"Fixed recap date (same retrieval game for every run): {args.recap_game_date}",
+            file=sys.stderr,
+        )
 
     if args.dry_run:
         rid = 0
@@ -184,7 +216,7 @@ def main() -> None:
             cmd = [
                 args.python,
                 str(lab_path),
-                args.query,
+                lab_query,
                 "--gen-prompt",
                 prompt,
             ]

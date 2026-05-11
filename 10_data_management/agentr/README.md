@@ -67,7 +67,7 @@ Smoke test after deploy: set **`AGENT_PUBLIC_URL`** in **`.env`** and run **`Rsc
 
 ## Parity with agentpy
 
-Same paths and JSON fields as FastAPI **`app.api`**: session **`session_id`** / **`resume_token`**, **`turn_cap`**, **`prefetch_search_used`**, **`forced_tool_round`**, **`min_completion_turns`**, HTTP **503** when stopped, **403** / **404** for bad resume, **500** on Ollama errors.
+Same paths and JSON fields as the Python FastAPI **`app`**: session **`session_id`** / **`resume_token`**, **`turn_cap`**, **`prefetch_search_used`**, **`forced_tool_round`**, **`min_completion_turns`**, HTTP **503** when stopped, **403** / **404** for bad resume, **500** on Ollama errors.
 
 **Note:** Plumber’s default JSON serializer may represent R **`NULL`** scalar fields (e.g. **`session_id`** on some error responses) as **`{}`** instead of JSON **`null`**. Treat **`{}`** as “no session id” when parsing; successful runs still return a string **`session_id`** as in Python.
 

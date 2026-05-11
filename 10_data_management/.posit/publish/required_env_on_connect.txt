@@ -1,0 +1,12 @@
+Set these in Posit Connect Cloud for the deployed content (content Settings → Vars / Environment).
+Do not commit real secrets to git.
+
+Required:
+  OLLAMA_API_KEY
+  OLLAMA_HOST          (e.g. https://ollama.com)
+  OLLAMA_MODEL         (e.g. nemotron-3-nano:30b-cloud)
+
+Optional:
+  SERPER_API_KEY       (web search + preflight; omit if you accept search-disabled behavior)
+
+After deploy, smoke-test from agentpy/ with AGENT_PUBLIC_URL and CONNECT_VIEWER_KEY in agentpy/.env — see testme.py.

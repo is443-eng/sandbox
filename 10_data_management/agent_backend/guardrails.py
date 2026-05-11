@@ -20,8 +20,8 @@ _SKILL_BASENAME_PATTERN = re.compile(r"^[a-zA-Z0-9_-]+\.md$")
 
 
 def agent_root() -> Path:
-    """Directory containing AGENT.md and skills/ (parent of the app/ package)."""
-    return Path(__file__).resolve().parent.parent
+    """Directory containing AGENT.md and skills/ (the agentpy/ folder)."""
+    return Path(__file__).resolve().parent.parent / "agentpy"
 
 
 def skills_dir() -> Path:

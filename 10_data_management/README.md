@@ -23,7 +23,7 @@ Two parallel implementations share the same JSON API (**`GET /health`**, **`POST
 
 | Folder | Language | Notes |
 |--------|----------|--------|
-| **[`agentpy/`](agentpy/)** | Python / **FastAPI** | Default class path; **`rsconnect deploy fastapi`**, **`app.api:app`**. |
+| **[`agentpy/`](agentpy/)** + [`app.py`](app.py) | Python / **FastAPI** | Run **`app:app`** from this folder; **`rsconnect deploy fastapi`**, **`app:app`**. |
 | **[`agentr/`](agentr/)** | R / **Plumber** | Same contract; **`web_search`** via **reticulate** + CrewAI **SerperDevTool**; **`rsconnect::deployAPI`**. |
 
 **Activities (either language — follow the track you chose):**

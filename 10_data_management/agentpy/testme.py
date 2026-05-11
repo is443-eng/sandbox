@@ -3,11 +3,11 @@
 # Tim Fraser
 #
 # Requires AGENT_PUBLIC_URL in .env (deployed base, no trailing slash).
-# For local runs, start the API first: ./runme.sh or: python -m uvicorn app.api:app (see README).
+# For local runs, start the API first: ./runme.sh or from 10_data_management/: python -m uvicorn app:app (see README).
 #
 # Deploy workflow (see also README, manifestme.sh, deployme.sh):
 #   pip install rsconnect-python
-#   ./manifestme.sh   # uses rsconnect write-manifest fastapi --entrypoint app.api:app
+#   ./manifestme.sh   # uses rsconnect write-manifest fastapi --entrypoint app:app
 #   ./deployme.sh
 #
 # On Connect, set at least: OLLAMA_API_KEY, OLLAMA_HOST, OLLAMA_MODEL.

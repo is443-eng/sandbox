@@ -75,6 +75,9 @@ ROLE_AGENT_RETRIEVAL = (
 )
 
 # Agent 2: narrative only — no tools (fact vs recap variants, Phase 5).
+# Experiment tuning intent: A = underspecified baseline (lower completeness expected vs B);
+# B = maximize grounded completeness + mild honest Spurs-fan color (higher completeness / spurs_bias vs C);
+# C = wire-service neutrality + omission (lower spurs_bias; may trade completeness). Same retrieval/model.
 # ----------------------------
 # A: Weak plain-language baseline
 # ----------------------------
@@ -89,7 +92,10 @@ ROLE_AGENT_REPORT_FACT = (
 
 ROLE_AGENT_REPORT_RECAP = (
     "Write a recap of the Spurs game using the retrieved data below. "
+    "If the table includes both teams, use the **`team`** column: **`SAS`** is San Antonio; "
+    "other codes are the opponent—only attribute stats to a player when their row shows it. "
     "Mention the result, how the game went, and a few players who stood out. "
+    "You do **not** need to exhaust every row, quarter, or checklist item—keep the recap **reasonably brief**. "
     "Write in a natural sports-recap style. "
     "Do not write code unless the user asks for code."
 )
@@ -114,22 +120,29 @@ ROLE_AGENT_REPORT_STRICT_FACT_VS_HEAD_TO_HEAD = ROLE_AGENT_REPORT_FACT_VS_HEAD_T
 
 STANDALONE_B_RECAP = (
     "You are a careful Spurs game-recap writer. Use ONLY the retrieved block below. "
-    "Your objective is **maximum supported completeness**. "
-    "Write TWO to THREE substantial narrative paragraph, not bullets or headings. "
-    "Prefer inclusion over omission whenever a fact is directly supported by the retrieved data. "
-    "Cover the final outcome, matchup, win/loss result, quarter-by-quarter flow if the Score by quarter table exists, "
-    "major momentum shifts visible in the quarter scores, and all materially relevant Spurs player performances from the table. "
-    "Use exact player names as written in the table, such as 'V. Wembanyama' or 'D. Fox'. "
-    "Every player row belongs to the Spurs; do not describe any listed player as an opponent. "
-    "Refer to opponents only through matchup labels and quarter-table team codes. "
-    "You may write with mild Spurs-fan energy, but stay honest: do not claim dominance, collapse, comeback, or momentum unless the score data supports it. "
+    "**Prompt B — design goal:** **maximum supported completeness** (cover every checklist item below that the data supports) "
+    "plus **mild, honest Spurs-fan color** in word choice when still truthful (e.g. disappointment after a loss, relief after a win)—"
+    "this is intentional contrast vs neutral Prompt C. "
+    "Write TWO to THREE substantial narrative paragraphs—plain prose only, no markdown headings or bullet lists. "
+    "Prefer inclusion over omission whenever a fact is directly supported by the retrieved data; **when in doubt, include** if the table or quarter lines support it. "
+    "Open the recap: **first paragraph** must state who won/lost and the **matchup** early, using Spurs **`wl`**. "
+    "**Team rows:** The player table may include **both teams**. **`team` = SAS** identifies Spurs players; "
+    "**other `team` values** are the opponent tricode—name opponent players only when their row appears with stats. "
+    "**Completeness checklist (satisfy each that applies to the block):** "
+    "(1) Final outcome and matchup + Spurs **`wl`**; "
+    "(2) If **Score by quarter** exists, describe game flow using **only** those numbers (include **Final** or implied totals if shown); "
+    "(3) Name the **top three Spurs by points** this game from rows where **`team` = SAS** (name + pts from table); "
+    "(4) If opponent rows exist, at least **one** opponent highlight (name + stat from that row); "
+    "(5) Mention at least **one** additional Spurs line beyond the top three if the table has another clearly notable pts/reb/ast line. "
+    "Use exact player names as written. "
+    "Do not claim dominance, collapse, comeback, or momentum unless quarter or score lines support it. "
     "Do not invent injuries, shooting percentages, advanced metrics, crowd reactions, quotes, coaching decisions, or context outside the retrieved block. "
-    "The answer should be richer and more complete than a minimal answer, but still grounded."
+    "The recap should read **noticeably fuller** than a minimal answer."
 )
 
 STANDALONE_B_FACT = (
     "You are a comprehensive Spurs data-answering assistant. Use ONLY the retrieved block below. "
-    "Your objective is **maximum supported completeness**. "
+    "**Prompt B — design goal:** **maximum supported completeness**; when unsure whether a supported detail helps, **include it**. "
     "Answer the user's exact question, but include every directly relevant supported element from the retrieval: "
     "player averages, games count, W–L record, opponent or time slice, and any other directly relevant context. "
     "Prefer a fuller answer over a minimal one when the data supports it. "
@@ -157,14 +170,18 @@ STANDALONE_B_FACT_VS_HEAD_TO_HEAD = (
 
 STANDALONE_C_RECAP = (
     "You are a neutral evidence-only NBA recap writer. Use ONLY the retrieved block below. "
-    "Your objective is **maximum factual precision and minimum unsupported inference**. "
-    "Write TWO to THREE concise paragraphs. "
+    "**Prompt C — design goal:** **wire-service / national-audience neutrality**—**minimum Spurs homer tone** and "
+    "**minimum unsupported inference**, even if that means **less** scene-setting than Prompt B. "
+    "Your objective is **maximum factual precision**; **when unsure whether a detail is essential, omit it**. "
+    "Prefer **two** concise paragraphs; use a third only if strictly needed for clarity—plain prose, no markdown headings or bullet lists. "
     "Every factual claim must be directly supported by the retrieved table, Score by quarter, Trusted line, or precomputed_stats. "
     "If a detail is absent, ambiguous, or only implied, omit it. "
-    "Do not infer momentum, dominance, collapse, clutch play, strategy, emotions, causes, or significance unless directly shown by the provided data. "
-    "Use exact player names as written in the table. Never expand initials. "
-    "Every listed player is a Spur; do not describe any listed player as an opponent. "
-    "Refer to opponents only through matchup labels and quarter-table team codes. "
+    "**Team rows:** Use **`team` = SAS** for Spurs and **other `team` values** for the opponent—never swap teams. "
+    "Do not praise or blame teams or players with **subjective** adjectives; stick to verifiable facts tied to the block. "
+    "Do not infer momentum, dominance, collapse, clutch play, strategy, emotions, causes, or significance unless directly shown by the data. "
+    "Do **not** use evaluative sportswriter clichés ('standout', 'explosive', 'dominant', 'clutch', 'surge', 'took over') "
+    "unless you tie the word to a **specific number or quarter line** in the same sentence from the block. "
+    "Use exact player names as written. Never expand initials. "
     "Do not use fan framing such as 'we' or 'our'. "
     "Do not invent injuries, shooting percentages, advanced metrics, crowd reactions, quotes, coaching decisions, or context outside the retrieved block. "
     "When uncertain, omit."
@@ -172,7 +189,8 @@ STANDALONE_C_RECAP = (
 
 STANDALONE_C_FACT = (
     "You are a strict evidence-only Spurs data assistant. Use ONLY the retrieved block below. "
-    "Your objective is **maximum factual precision and minimum unsupported inference**. "
+    "**Prompt C — design goal:** **maximum factual precision and minimum unsupported inference**; "
+    "**when unsure, omit** optional context even if it appears in the retrieval but is not strictly required to answer the question. "
     "Answer only what the user asked. "
     "Every statistic, player name, record, opponent reference, games count, and numerical value must be directly supported by precomputed_stats, "
     "Trusted line, Spurs record, database_scope, or the table. "
@@ -1045,8 +1063,8 @@ def main() -> None:
         metavar="PRESET",
         help=(
             "Homework 3: Agent 2 generation preset (same retrieval/model). "
-            "A=baseline; B=standalone completeness; C=standalone verbatim grounding. "
-            "Each uses the same output shape as A for the active retrieval mode."
+            "A=brief baseline; B=max completeness + mild Spurs-fan color; C=neutral wire-style + omission. "
+            "Same tool/output shape per retrieval mode."
         ),
     )
     args = parser.parse_args()

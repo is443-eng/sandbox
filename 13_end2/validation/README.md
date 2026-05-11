@@ -11,7 +11,7 @@
 - **Rubric**: [`rubric.py`](rubric.py) — full anchors embedded in the validator prompt.
 - **Single report**: [`single_validate.py`](single_validate.py) — stdin or `--file`.
 - **Batch CSV**: [`batch_validate.py`](batch_validate.py) — many rows → scores CSV.
-- **Inference**: [`analyze_experiment.py`](analyze_experiment.py) — ANOVA on `quality_composite`, ANOVA on `spurs_bias`, Welch **t-tests vs A** with Bonferroni note.
+- **Inference**: [`analyze_experiment.py`](analyze_experiment.py) — ANOVA on `--primary` (default `quality_composite`), ANOVA on `spurs_bias`, Welch **t-tests vs baseline** with Bonferroni; optional **`--contrast B C`** planned pairwise on the same primary outcome.
 - **Pilot**: [`pilot_check.py`](pilot_check.py) — warns if between-prompt mean range is narrow.
 - **Batch generation**: [`run_generation_batch.py`](run_generation_batch.py) — calls the Spurs lab for each prompt × replicate and builds `reports_batch.csv`; optional `--validate` / `--analyze`.
 
@@ -48,6 +48,8 @@ python validation/run_generation_batch.py -n 3 --raw-dir validation/data/raw_run
 
 Forward **`--model`**, **`--db`**, **`--season`**, **`--limit`** to the lab. Use **`--scores-out`** to set the scores CSV path when chaining (**`--validate`** / **`--analyze`**). **`--validation-provider`** is passed to **`batch_validate`**.
 
+**Hold game constant across runs:** **`--recap-game-date YYYY-MM-DD`** replaces **`--query`** with a fixed-date recap request so every replicate pulls the same contest (less retrieval variance than “latest game”).
+
 From the **repo root** (`sandbox/`):
 
 ```bash
@@ -67,6 +69,8 @@ python3 validation/run_generation_batch.py -n 5 --dry-run
 | `uses_we_our_for_spurs` | bool | true — inappropriate fan “we/our” for Spurs. |
 | `opponent_named_fairly` | bool | true — fair opponent framing when relevant. |
 | `quality_composite` | derived | Mean of `factual_accuracy`, `completeness`, `structure`, and \((6 - \texttt{spurs\_bias})\); **higher is better.** |
+
+Validator JSON: Likert fields outside 1–5 are **clamped** to the nearest valid integer so batch rows are not dropped.
 
 ---
 
@@ -119,8 +123,21 @@ python validation/batch_validate.py -i validation/data/reports_batch.csv -o vali
 # Pilot spread check
 python validation/pilot_check.py --scores validation/data/scores.csv
 
-# Statistical analysis (primary outcome: quality_composite)
+# Statistical analysis (default primary: quality_composite)
 python validation/analyze_experiment.py --scores validation/data/scores.csv
+
+# Same scores: emphasize completeness or bias (B vs C hypotheses)
+python validation/analyze_experiment.py --scores validation/data/scores.csv --primary completeness
+python validation/analyze_experiment.py --scores validation/data/scores.csv --primary spurs_bias
+
+# Planned B vs C contrast on primary outcome (Bonferroni pools with baseline contrasts)
+python validation/analyze_experiment.py --scores validation/data/scores.csv --primary completeness --contrast B C
+
+# Descriptive / effect-size block + mean(SD) for every Likert (good for write-ups)
+python validation/analyze_experiment.py --scores validation/data/scores.csv --all-likerts
+
+# Box plot of quality_composite (or --column) by prompt_id → PNG
+python validation/plot_scores_boxplot.py --scores validation/data/scores.csv -o validation/data/quality_composite_boxplot.png
 
 # Dry run (no LLM): bundled synthetic scores for pipeline check
 python validation/analyze_experiment.py --scores validation/data/scores_example.csv

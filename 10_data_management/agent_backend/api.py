@@ -22,7 +22,7 @@ from .logging_setup import configure_agent_logging
 
 # Always load agentpy/.env (not cwd), so uvicorn works from repo root; override so a
 # empty OLLAMA_API_KEY in the shell cannot mask values from the file.
-_AGENTPY_ROOT = Path(__file__).resolve().parent.parent
+_AGENTPY_ROOT = Path(__file__).resolve().parent.parent / "agentpy"
 load_dotenv(_AGENTPY_ROOT / ".env", override=True)
 
 
@@ -58,7 +58,7 @@ unless you send a new task in a resume flow.
 ### Intended deployment
 
 - Primary target is **Posit Connect** as a **FastAPI** content item. 
-- Deploy with **`app.api:app`** (see the module’s `manifestme.sh` / `deployme.sh` and `rsconnect deploy fastapi` workflow).
+- Deploy with **`app:app`** from **`10_data_management/`** (see `manifestme.sh` / `deployme.sh` and `rsconnect deploy fastapi` workflow).
 - Environment variables such as `OLLAMA_API_KEY`, optional `SERPER_API_KEY`, and Connect server settings are set on the Connect host.
 
 """.strip()
@@ -393,4 +393,4 @@ async def hooks_agent(body: AgentBodyDep) -> JSONResponse:
 
 
 # Run locally (from the agentpy/ folder):
-#   python -m uvicorn app.api:app --host 0.0.0.0 --port 8000
+#   python -m uvicorn app:app --host 0.0.0.0 --port 8000

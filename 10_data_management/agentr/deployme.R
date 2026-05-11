@@ -6,7 +6,8 @@
 # This script deploys plumber.R to Posit Connect as a Plumber API (same pattern as
 # 08_function_calling/mcp_plumber/deployme.R). Includes requirements.txt for reticulate / crewai_tools.
 #
-# Run from the repository root (getwd() = dsai). Ensure .env has CONNECT_SERVER and CONNECT_API_KEY,
+# Run from the repository root (getwd() = dsai). Ensure .env has CONNECT_SERVER and CONNECT_API_KEY
+# (Posit Connect Cloud: CONNECT_SERVER=https://connect.posit.cloud; API key under Account → API Keys),
 # or place .env in this folder and setwd here before sourcing.
 
 # 0. SETUP ###################################

@@ -33,7 +33,7 @@ Endpoints are the same: **`GET /health`**, **`POST /hooks/agent`**, **`POST /hoo
 
 ### 🧱 Stage 2: Start the API
 
-- [ ] **Python:** From **`agentpy/`**, start the server: **`python -m uvicorn app.api:app --host 0.0.0.0 --port 8000`**, or **`./runme.sh`** (see **[`agentpy/README.md`](agentpy/README.md)**).
+- [ ] **Python:** From **`10_data_management/`**, run **`python -m uvicorn app:app --host 0.0.0.0 --port 8000`**, or from **`agentpy/`** run **`./runme.sh`** (see **[`agentpy/README.md`](agentpy/README.md)**).
 - [ ] **R:** From the **repository root** (**`dsai`**), run **`Rscript 10_data_management/agentr/runme.R`** or **`source("10_data_management/agentr/runme.R")`** (see **[`agentr/README.md`](agentr/README.md)**).
 - [ ] Open **`http://127.0.0.1:8000/health`** in a browser and confirm you see **`"ok": true`**.
   - <img width="452" height="128" alt="image" src="https://github.com/user-attachments/assets/f61a194f-41b1-4763-89c6-ab3d7cff2424" />

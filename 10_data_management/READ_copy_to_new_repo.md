@@ -44,7 +44,7 @@ If you drop the **`10_data_management`** segment, update these paths and the doc
 
 Running from **`agentpy/`** or **`fixer/`** (or using **`FIXER_ROOT`** where implemented) usually works without the parent repo name. Helpers such as **`fixer/functions.py`** and **`fixer/testme.py`** look for **`…/10_data_management/fixer`** when resolving the fixer root from the repo root; adjust or rely on running inside **`fixer/`**.
 
-**FastAPI** loads **`.env`** from the **`agentpy/`** directory when using the packaged app layout (see **`app/api.py`**). Keep an **`agentpy/.env`** (never commit secrets) in the copied tree.
+**FastAPI** loads **`.env`** from the **`agentpy/`** directory (see **`agent_backend/api.py`**). Keep an **`agentpy/.env`** (never commit secrets) in the copied tree. Entrypoint is **`10_data_management/app.py`** (**`app:app`**).
 
 ---
 

@@ -1,0 +1,23 @@
+# Posit Publisher — deploy this folder to Posit Connect Cloud as FastAPI (app:app).
+# Open 10_data_management.code-workspace (repo root) or File → Open Folder → 10_data_management,
+# then use the Publisher sidebar: sign in to Connect Cloud and deploy.
+#
+# Secrets (OLLAMA_API_KEY, etc.) must be set in Connect Cloud for this content — not in this file.
+
+"$schema" = "https://cdn.posit.co/publisher/schemas/posit-publishing-schema-v3.json"
+
+product_type = "connect_cloud"
+type = "python-fastapi"
+entrypoint = "app:app"
+title = "Disaster Situational Brief Agent"
+description = "Bounded autonomous agent API (GET /health, POST /hooks/agent). Module 10 data management lab."
+
+files = [
+  "/app.py",
+  "/requirements.txt",
+  "agent_backend/**",
+  "agentpy/**",
+]
+
+[python]
+version = "3.12"

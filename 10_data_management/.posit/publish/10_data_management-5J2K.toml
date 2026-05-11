@@ -1,0 +1,21 @@
+# Posit Publisher deployment config (FastAPI). If the UI only asks for "entrypoint", use: app:app
+# Docs: https://github.com/posit-dev/publisher/blob/main/docs/configuration.md
+#
+# Do not store secrets here — set OLLAMA_* (and optional SERPER_API_KEY) on Connect Cloud for this content.
+
+"$schema" = "https://cdn.posit.co/publisher/schemas/posit-publishing-schema-v3.json"
+product_type = "connect_cloud"
+type = "python-fastapi"
+entrypoint = "app:app"
+title = "Disaster Situational Brief Agent"
+description = "Bounded autonomous agent API (GET /health, POST /hooks/agent). Module 10 data management lab."
+
+files = [
+  "/app.py",
+  "/requirements.txt",
+  "agent_backend/**",
+  "agentpy/**",
+]
+
+[python]
+version = "3.12"

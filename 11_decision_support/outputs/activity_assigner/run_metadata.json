@@ -1,0 +1,8 @@
+{
+  "model": "llama3:latest",
+  "followup_target": "Alex Chen <-> Client H",
+  "output_files": [
+    "stage1.md",
+    "stage2_stress_test.md"
+  ]
+}

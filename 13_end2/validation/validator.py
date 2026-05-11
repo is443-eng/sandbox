@@ -1,5 +1,8 @@
 """
 Query OpenAI or Ollama to validate a report; parse JSON into a flat dict + composite score.
+
+Environment (see dotenv): VALIDATION_AI_PROVIDER (ollama|openai), OLLAMA_MODEL, OPENAI_MODEL.
+Using a capable judge model typically lowers Likert variance vs small local models.
 """
 
 from __future__ import annotations
@@ -83,6 +86,15 @@ def query_validator(prompt: str, provider: str | None = None) -> str:
     raise ValueError(f"Unknown provider: {prov}")
 
 
+def _clamp_likert(value: Any, key: str) -> int:
+    """Coerce validator output to 1–5 (handles stray 0 or 6 from models)."""
+    try:
+        v = int(round(float(value)))
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"{key} must be numeric 1–5, got {value!r}") from e
+    return max(1, min(5, v))
+
+
 def parse_validation_json(text: str) -> dict[str, Any]:
     m = re.search(r"\{[\s\S]*\}", text)
     if not m:
@@ -91,9 +103,7 @@ def parse_validation_json(text: str) -> dict[str, Any]:
     for k in LIKERT_KEYS:
         if k not in data:
             raise KeyError(f"Missing key {k}")
-        v = int(data[k])
-        if v < 1 or v > 5:
-            raise ValueError(f"{k} must be 1–5, got {v}")
+        data[k] = _clamp_likert(data[k], k)
     for k in BOOLEAN_KEYS:
         if k not in data:
             raise KeyError(f"Missing key {k}")

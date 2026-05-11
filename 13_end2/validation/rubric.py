@@ -34,6 +34,8 @@ Coverage of what the task implies (result, turning points, standouts, requested 
 | 4 | Covers main expectations with minor gaps. |
 | 5 | Fully addresses the implied checklist. |
 
+**Two-team retrieval:** If the source block includes opponent rows (`team` ≠ `SAS`), score completeness using **grounded** coverage of both sides when the brief implies a full-game recap—without inventing players absent from the source.
+
 ### structure (integer 1–5)
 Organization: flow, sections/paragraphs, readable hierarchy (not an unreadable wall unless required).
 
