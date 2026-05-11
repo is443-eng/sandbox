@@ -1,5 +1,7 @@
 # AI Report Validation (`13_end2/validation`)
 
+**Homework 3 submission bundle (criteria table, experiment, stats, system, usage):** [`HOMEWORK3_SUBMISSION_REFERENCE.md`](HOMEWORK3_SUBMISSION_REFERENCE.md)
+
 `validation` implements the **Homework 3** custom validator: four **1–5 Likert** dimensions plus two optional **booleans**, distinct from the Module 9 LAB rubric (`accuracy`, `formality`, `faithfulness`, etc.). Reports are scored by an LLM using anchored criteria in [`rubric.py`](rubric.py). **`spurs_bias`** is coded so **5 = strongest Spurs/homer tone** and **1 = most neutral**.
 
 ---
